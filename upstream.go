@@ -42,12 +42,14 @@ func (up *Upstream) Serve(rw http.ResponseWriter, req *http.Request) {
 	server.ServeHTTP(rw, req)
 }
 
-func NewUpstream(servers ...*httputil.ReverseProxy) *Upstream {
+func NewUpstream(servers ...string) *Upstream {
 	up := &Upstream{
 		currentLock: &sync.Mutex{},
 	}
 	if len(servers) > 0 {
-		up.AddEndpoint(servers...)
+		for _, server := range servers {
+			up.AddEndpoint(NewReverseProxy(server))
+		}
 	}
 	return up
 }
