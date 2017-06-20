@@ -44,6 +44,19 @@ func TestGetLocation(t *testing.T) {
 	assert.Equal(t, web, location)
 }
 
+func TestGetLocationNil(t *testing.T) {
+	api := NewLocation("/api", NewUpstream(&httputil.ReverseProxy{Director: func(req *http.Request) {
+		req.URL.Scheme = "http"
+		req.URL.Host = "127.0.0.1:8091"
+	}}, &httputil.ReverseProxy{Director: func(req *http.Request) {
+		req.URL.Scheme = "http"
+		req.URL.Host = "127.0.0.1:8092"
+	}}))
+
+	server := NewServer(api)
+	assert.Nil(t, server.getLocation("/anything/else"))
+}
+
 func TestLocationByPath(t *testing.T) {
 	web := NewLocation("/", NewUpstream(&httputil.ReverseProxy{Director: func(req *http.Request) {
 		req.URL.Scheme = "http"
