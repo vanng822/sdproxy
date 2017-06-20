@@ -21,3 +21,10 @@ func main() {
 	log.Fatal(server.ListenAndServe("127.0.0.1:8181"))
 }
 ```
+
+OR
+
+```bash
+> go install github.com/vanng822/sdproxy/cmd/sdproxy
+> sdproxy -c path_to_config.json
+```
