@@ -5,14 +5,23 @@ Simple dev proxy - mimic nginx in dev environment
 # Usage
 
 ```go
-  api := sdproxy.NewLocation("/api", sdproxy.NewUpstream(&httputil.ReverseProxy{Director: func(req *http.Request) {
-    req.URL.Scheme = "http"
-    req.URL.Host = "127.0.0.1:8091"
-  }}, &httputil.ReverseProxy{Director: func(req *http.Request) {
-    req.URL.Scheme = "http"
-    req.URL.Host = "127.0.0.1:8092"
-  }}))
+package main
 
-  server := sdproxy.NewServer(api, web)
-  log.Fatal(server.ListenAndServe("127.0.0.1:8181"))
+import (
+	"log"
+
+	"github.com/vanng822/sdproxy"
+)
+
+func main() {
+	web := sdproxy.NewLocation("/", sdproxy.NewUpstream(
+		sdproxy.NewReverseProxy("127.0.0.1:8090"),
+		sdproxy.NewReverseProxy("127.0.0.1:8091")))
+	api := sdproxy.NewLocation("/api", sdproxy.NewUpstream(
+		sdproxy.NewReverseProxy("127.0.0.1:8092"),
+		sdproxy.NewReverseProxy("127.0.0.1:8093")))
+
+	server := sdproxy.NewServer(web, api)
+	log.Fatal(server.ListenAndServe("127.0.0.1:9090"))
+}
 ```
