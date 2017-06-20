@@ -7,7 +7,12 @@ import (
 )
 
 type Server struct {
+	addr      string
 	locations []*Location
+}
+
+func (s *Server) SetAddr(addr string) {
+	s.addr = addr
 }
 
 // AddLocation will add and sort the paths in reverse natural order
@@ -40,12 +45,14 @@ func (s *Server) sortLocations() {
 	sort.Sort(sort.Reverse(LocationByPath(s.locations)))
 }
 
-func (s *Server) ListenAndServe(addr string) error {
-	return http.ListenAndServe(addr, s)
+func (s *Server) ListenAndServe() error {
+	return http.ListenAndServe(s.addr, s)
 }
 
-func NewServer(locations ...*Location) *Server {
-	server := &Server{}
+func NewServer(addr string, locations ...*Location) *Server {
+	server := &Server{
+		addr: addr,
+	}
 	server.AddLocation(locations...)
 	return server
 }

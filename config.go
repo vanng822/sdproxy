@@ -20,7 +20,7 @@ func NewServerFromConfig(conf *Config) *Server {
 	for _, location := range conf.Locations {
 		locations = append(locations, NewLocation(location.Path, NewUpstream(location.Servers...)))
 	}
-	server := NewServer(locations...)
+	server := NewServer(conf.Addr, locations...)
 	return server
 }
 

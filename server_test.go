@@ -11,7 +11,7 @@ func TestGetLocation(t *testing.T) {
 	api := NewLocation("/api", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
 	apiWeb := NewLocation("/api/web", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
 
-	server := NewServer(web, apiWeb, api)
+	server := NewServer("127.0.0.1:8080", web, apiWeb, api)
 
 	location := server.getLocation("/api/web/v1/calendar")
 	assert.Equal(t, apiWeb, location)
@@ -25,7 +25,7 @@ func TestGetLocation(t *testing.T) {
 
 func TestGetLocationNil(t *testing.T) {
 	api := NewLocation("/api", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
-	server := NewServer(api)
+	server := NewServer("127.0.0.1:8080", api)
 	assert.Nil(t, server.getLocation("/anything/else"))
 }
 
@@ -34,7 +34,7 @@ func TestLocationByPath(t *testing.T) {
 	api := NewLocation("/api", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
 	apiWeb := NewLocation("/api/web", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
 
-	server := NewServer(web, apiWeb, api)
+	server := NewServer("127.0.0.1:8080", web, apiWeb, api)
 	server.sortLocations()
 	sortedApiWeb := server.locations[0]
 	sortedApi := server.locations[1]
@@ -43,4 +43,12 @@ func TestLocationByPath(t *testing.T) {
 	assert.Equal(t, apiWeb, sortedApiWeb)
 	assert.Equal(t, web, sortedWeb)
 	assert.Equal(t, api, sortedApi)
+}
+
+func TestServerAddr(t *testing.T) {
+	api := NewLocation("/api", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
+	server := NewServer("127.0.0.1:8080", api)
+	assert.Equal(t, "127.0.0.1:8080", server.addr)
+	server.SetAddr("127.0.0.1:9090")
+	assert.Equal(t, "127.0.0.1:9090", server.addr)
 }

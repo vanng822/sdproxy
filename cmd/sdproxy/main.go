@@ -19,5 +19,5 @@ func main() {
 	flag.Parse()
 	conf := sdproxy.ParseConfig(config)
 	server := sdproxy.NewServerFromConfig(conf)
-	log.Fatal(server.ListenAndServe(conf.Addr))
+	log.Fatal(server.ListenAndServe())
 }
