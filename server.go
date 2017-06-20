@@ -2,6 +2,7 @@ package sdproxy
 
 import (
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -27,7 +28,12 @@ func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	http.Error(rw, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
 
+func (s *Server) sortLocations() {
+	sort.Sort(sort.Reverse(LocationByPath(s.locations)))
+}
+
 func (s *Server) ListenAndServe(addr string) error {
+	s.sortLocations()
 	return http.ListenAndServe(addr, s)
 }
 

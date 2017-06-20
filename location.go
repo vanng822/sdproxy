@@ -18,3 +18,15 @@ func NewLocation(path string, upstream *Upstream) *Location {
 	}
 	return location
 }
+
+type LocationByPath []*Location
+
+func (lbp LocationByPath) Len() int {
+	return len(lbp)
+}
+func (lbp LocationByPath) Swap(i, j int) {
+	lbp[i], lbp[j] = lbp[j], lbp[i]
+}
+func (lbp LocationByPath) Less(i, j int) bool {
+	return lbp[i].path < lbp[j].path
+}
