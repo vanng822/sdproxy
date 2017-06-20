@@ -1,7 +1,6 @@
 package sdproxy
 
 import (
-	"log"
 	"net/http"
 	"strings"
 )
@@ -20,7 +19,6 @@ func (s *Server) AddLocation(locations ...*Location) {
 
 func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	for _, location := range s.locations {
-		log.Println(location.path, req.URL.RequestURI())
 		if strings.HasPrefix(req.URL.RequestURI(), location.path) {
 			location.Serve(rw, req)
 			return
