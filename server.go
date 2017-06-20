@@ -10,12 +10,13 @@ type Server struct {
 	locations []*Location
 }
 
-// FIFO you are in charge of how it will match
+// AddLocation will add and sort the paths in reverse natural order
 func (s *Server) AddLocation(locations ...*Location) {
 	if len(locations) == 0 {
 		return
 	}
 	s.locations = append(s.locations, locations...)
+	s.sortLocations()
 }
 
 func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -33,7 +34,6 @@ func (s *Server) sortLocations() {
 }
 
 func (s *Server) ListenAndServe(addr string) error {
-	s.sortLocations()
 	return http.ListenAndServe(addr, s)
 }
 
