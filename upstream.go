@@ -7,47 +7,47 @@ import (
 )
 
 type Upstream struct {
-	Endpoints   []*httputil.ReverseProxy
+	servers     []*httputil.ReverseProxy
 	current     int
 	currentLock *sync.Mutex
 }
 
-func (up *Upstream) AddEndpoint(endpoints ...*httputil.ReverseProxy) {
-	if len(endpoints) == 0 {
+func (up *Upstream) AddEndpoint(servers ...*httputil.ReverseProxy) {
+	if len(servers) == 0 {
 		return
 	}
-	up.Endpoints = append(up.Endpoints, endpoints...)
+	up.servers = append(up.servers, servers...)
 }
 
-func (up *Upstream) nextEndPoint() *httputil.ReverseProxy {
-	if len(up.Endpoints) == 0 {
+func (up *Upstream) nextServer() *httputil.ReverseProxy {
+	if len(up.servers) == 0 {
 		return nil
 	}
 	up.currentLock.Lock()
 	defer up.currentLock.Unlock()
-	if up.current >= len(up.Endpoints) {
+	if up.current >= len(up.servers) {
 		up.current = 0
 	}
-	endpoint := up.Endpoints[up.current]
+	server := up.servers[up.current]
 	up.current++
-	return endpoint
+	return server
 }
 
 func (up *Upstream) Serve(rw http.ResponseWriter, req *http.Request) {
-	endpoint := up.nextEndPoint()
-	if endpoint == nil {
+	server := up.nextServer()
+	if server == nil {
 		http.Error(rw, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
 		return
 	}
-	endpoint.ServeHTTP(rw, req)
+	server.ServeHTTP(rw, req)
 }
 
-func NewUpstream(endpoints ...*httputil.ReverseProxy) *Upstream {
+func NewUpstream(servers ...*httputil.ReverseProxy) *Upstream {
 	up := &Upstream{
 		currentLock: &sync.Mutex{},
 	}
-	if len(endpoints) > 0 {
-		up.AddEndpoint(endpoints...)
+	if len(servers) > 0 {
+		up.AddEndpoint(servers...)
 	}
 	return up
 }

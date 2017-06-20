@@ -19,10 +19,10 @@ func TestNextEndPoint(t *testing.T) {
 	}}
 
 	up := NewUpstream(r1, r2)
-	res := up.nextEndPoint()
+	res := up.nextServer()
 	assert.Equal(t, r1, res)
-	res = up.nextEndPoint()
+	res = up.nextServer()
 	assert.Equal(t, r2, res)
-	res = up.nextEndPoint()
+	res = up.nextServer()
 	assert.Equal(t, r1, res)
 }
