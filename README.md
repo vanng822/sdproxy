@@ -1,6 +1,6 @@
 # sdproxy
 
-Simple dev proxy - mimic nginx in dev environment
+Simple dev reverse proxy - mimic nginx in dev environment
 
 # Usage
 
