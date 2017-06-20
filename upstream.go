@@ -12,7 +12,7 @@ type Upstream struct {
 	currentLock *sync.Mutex
 }
 
-func (up *Upstream) AddEndpoint(servers ...*httputil.ReverseProxy) {
+func (up *Upstream) AddServer(servers ...*httputil.ReverseProxy) {
 	if len(servers) == 0 {
 		return
 	}
@@ -48,7 +48,7 @@ func NewUpstream(servers ...string) *Upstream {
 	}
 	if len(servers) > 0 {
 		for _, server := range servers {
-			up.AddEndpoint(NewReverseProxy(server))
+			up.AddServer(NewReverseProxy(server))
 		}
 	}
 	return up
