@@ -29,6 +29,7 @@ func TestNewServerFromConfig(t *testing.T) {
 
 	assert.Equal(t, "/api", server.locations[0].path)
 	assert.Equal(t, "/", server.locations[1].path)
+	assert.Equal(t, "127.0.0.1:8080", server.addr)
 }
 
 func TestParseConfig(t *testing.T) {
