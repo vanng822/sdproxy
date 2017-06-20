@@ -16,6 +16,7 @@ func main() {
 	)
 
 	flag.StringVar(&config, "c", "config.json", usage)
+	flag.Parse()
 	conf := sdproxy.ParseConfig(config)
 	server := sdproxy.NewServerFromConfig(conf)
 	log.Fatal(server.ListenAndServe(conf.Addr))
