@@ -19,12 +19,19 @@ func (s *Server) AddLocation(locations ...*Location) {
 	s.sortLocations()
 }
 
-func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (s *Server) getLocation(requestURI string) *Location {
 	for _, location := range s.locations {
-		if strings.HasPrefix(req.URL.RequestURI(), location.path) {
-			location.Serve(rw, req)
-			return
+		if strings.HasPrefix(requestURI, location.path) {
+			return location
 		}
+	}
+	return nil
+}
+
+func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	if location := s.getLocation(req.URL.RequestURI()); location != nil {
+		location.Serve(rw, req)
+		return
 	}
 	http.Error(rw, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
