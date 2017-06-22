@@ -2,19 +2,26 @@ package sdproxy
 
 import "net/http"
 
+type MatchHeader struct {
+	Name    string
+	Pattern string
+}
+
 type Location struct {
 	path     string
 	upstream *Upstream
+	matches  []*MatchHeader
 }
 
 func (loc *Location) Serve(rw http.ResponseWriter, req *http.Request) {
 	loc.upstream.Serve(rw, req)
 }
 
-func NewLocation(path string, upstream *Upstream) *Location {
+func NewLocation(path string, upstream *Upstream, matches ...*MatchHeader) *Location {
 	location := &Location{
 		path:     path,
 		upstream: upstream,
+		matches:  matches,
 	}
 	return location
 }

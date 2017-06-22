@@ -24,17 +24,28 @@ func (s *Server) AddLocation(locations ...*Location) {
 	s.sortLocations()
 }
 
-func (s *Server) getLocation(requestURI string) *Location {
+func (s *Server) getLocation(req *http.Request) *Location {
 	for _, location := range s.locations {
-		if strings.HasPrefix(requestURI, location.path) {
-			return location
+		if strings.HasPrefix(req.URL.RequestURI(), location.path) {
+			if location.matches == nil {
+				return location
+			}
+			for _, header := range location.matches {
+				headerValue := req.Header.Get(header.Name)
+				if headerValue == "" {
+					return nil
+				}
+				if strings.Contains(headerValue, header.Pattern) {
+					return location
+				}
+			}
 		}
 	}
 	return nil
 }
 
 func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if location := s.getLocation(req.URL.RequestURI()); location != nil {
+	if location := s.getLocation(req); location != nil {
 		location.Serve(rw, req)
 		return
 	}

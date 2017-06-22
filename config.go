@@ -7,6 +7,7 @@ import (
 
 type LocationConfig struct {
 	Path    string
+	Matches []*MatchHeader
 	Servers []string
 }
 
@@ -18,7 +19,7 @@ type Config struct {
 func NewServerFromConfig(conf *Config) *Server {
 	var locations []*Location
 	for _, location := range conf.Locations {
-		locations = append(locations, NewLocation(location.Path, NewUpstream(location.Servers...)))
+		locations = append(locations, NewLocation(location.Path, NewUpstream(location.Servers...), location.Matches...))
 	}
 	server := NewServer(conf.Addr, locations...)
 	return server
