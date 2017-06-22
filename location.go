@@ -35,5 +35,13 @@ func (lbp LocationByPath) Swap(i, j int) {
 	lbp[i], lbp[j] = lbp[j], lbp[i]
 }
 func (lbp LocationByPath) Less(i, j int) bool {
-	return lbp[i].path < lbp[j].path
+	if lbp[i].path < lbp[j].path {
+		return true
+	}
+	if lbp[i].path > lbp[j].path {
+		return false
+	}
+	// JUST simplicity here, assume more match fields should match first
+	// when we need sorted for comparing then implement it
+	return len(lbp[i].matches) < len(lbp[j].matches)
 }
