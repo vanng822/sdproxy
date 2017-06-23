@@ -79,13 +79,15 @@ func TestLocationByPath(t *testing.T) {
 	web := NewLocation("/", NewUpstream("127.0.0.1:8090", "127.0.0.1:8094"))
 	api := NewLocation("/api", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
 	apiWeb := NewLocation("/api/web", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"))
+	apiWebHeader := NewLocation("/api/web", NewUpstream("127.0.0.1:8091", "127.0.0.1:8092"), &MatchHeader{})
 
-	server := NewServer("127.0.0.1:8080", web, apiWeb, api)
+	server := NewServer("127.0.0.1:8080", web, apiWeb, api, apiWebHeader)
 	server.sortLocations()
-	sortedApiWeb := server.locations[0]
-	sortedApi := server.locations[1]
-	sortedWeb := server.locations[2]
-
+	sortedWebHeader := server.locations[0]
+	sortedApiWeb := server.locations[1]
+	sortedApi := server.locations[2]
+	sortedWeb := server.locations[3]
+	assert.Equal(t, apiWebHeader, sortedWebHeader)
 	assert.Equal(t, apiWeb, sortedApiWeb)
 	assert.Equal(t, web, sortedWeb)
 	assert.Equal(t, api, sortedApi)
