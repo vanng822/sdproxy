@@ -24,20 +24,27 @@ func (s *Server) AddLocation(locations ...*Location) {
 	s.sortLocations()
 }
 
+func (s *Server) matchHeader(req *http.Request, location *Location) bool {
+	for _, header := range location.matches {
+		headerValue := req.Header.Get(header.Name)
+		if headerValue == "" {
+			return false
+		}
+		if strings.Contains(headerValue, header.Pattern) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Server) getLocation(req *http.Request) *Location {
 	for _, location := range s.locations {
 		if strings.HasPrefix(req.URL.RequestURI(), location.path) {
 			if location.matches == nil {
 				return location
 			}
-			for _, header := range location.matches {
-				headerValue := req.Header.Get(header.Name)
-				if headerValue == "" {
-					return nil
-				}
-				if strings.Contains(headerValue, header.Pattern) {
-					return location
-				}
+			if s.matchHeader(req, location) {
+				return location
 			}
 		}
 	}
