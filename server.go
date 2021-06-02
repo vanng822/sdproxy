@@ -7,8 +7,8 @@ import (
 )
 
 type Server struct {
-	addr      string
-	locations []*Location
+	addr  string
+	hosts map[string][]*Location
 }
 
 func (s *Server) SetAddr(addr string) {
@@ -16,11 +16,16 @@ func (s *Server) SetAddr(addr string) {
 }
 
 // AddLocation will add and sort the paths in reverse natural order
-func (s *Server) AddLocation(locations ...*Location) {
-	if len(locations) == 0 {
-		return
+func (s *Server) AddLocation(hosts ...*Host) {
+	for _, host := range hosts {
+		if len(host.locations) == 0 {
+			continue
+		}
+		if _, exist := s.hosts[host.hostname]; !exist {
+			s.hosts[host.hostname] = make([]*Location, 0)
+		}
+		s.hosts[host.hostname] = append(s.hosts[host.hostname], host.locations...)
 	}
-	s.locations = append(s.locations, locations...)
 	s.sortLocations()
 }
 
@@ -38,16 +43,22 @@ func (s *Server) matchHeader(req *http.Request, location *Location) bool {
 }
 
 func (s *Server) getLocation(req *http.Request) *Location {
-	for _, location := range s.locations {
-		if strings.HasPrefix(req.URL.RequestURI(), location.path) {
-			if location.matches == nil {
-				return location
-			}
-			if s.matchHeader(req, location) {
-				return location
+	for host, locations := range s.hosts {
+		if host != req.Host {
+			continue
+		}
+		for _, location := range locations {
+			if strings.HasPrefix(req.URL.RequestURI(), location.path) {
+				if location.matches == nil {
+					return location
+				}
+				if s.matchHeader(req, location) {
+					return location
+				}
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -60,17 +71,20 @@ func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) sortLocations() {
-	sort.Sort(sort.Reverse(LocationByPath(s.locations)))
+	for _, locations := range s.hosts {
+		sort.Sort(sort.Reverse(LocationByPath(locations)))
+	}
 }
 
 func (s *Server) ListenAndServe() error {
 	return http.ListenAndServe(s.addr, s)
 }
 
-func NewServer(addr string, locations ...*Location) *Server {
+func NewServer(addr string, hosts ...*Host) *Server {
 	server := &Server{
-		addr: addr,
+		addr:  addr,
+		hosts: make(map[string][]*Location),
 	}
-	server.AddLocation(locations...)
+	server.AddLocation(hosts...)
 	return server
 }

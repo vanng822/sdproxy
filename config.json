@@ -1,22 +1,24 @@
 {
     "addr": "127.0.0.1:8080",
-    "locations": [{
-        "path": "/api",
-        "servers": [
-            "127.0.0.1:8090",
-			"127.0.0.1:8091"
-        ]
-    },{
-        "path": "/",
-		"matches": [
-			{
-				"Name": "User-Agent",
-				"Pattern": "Googlebot"
-			}
-		],
-        "servers": [
-            "127.0.0.1:8090",
-			"127.0.0.1:8091"
-        ]
-    }]
+    "hosts": [{
+      "hostname": "localhost",
+      "locations": [{
+          "path": "/api",
+          "servers": [
+              "127.0.0.1:8090",
+  			      "127.0.0.1:8091"
+          ]
+      },{
+          "path": "/",
+      		"matches": [{
+          "Name": "User-Agent",
+          "Pattern": "Googlebot"
+        }],
+          "servers": [
+              "127.0.0.1:8090",
+  			"127.0.0.1:8091"
+          ]
+      }]
+    }
+  ]
 }

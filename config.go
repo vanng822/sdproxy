@@ -12,16 +12,25 @@ type LocationConfig struct {
 }
 
 type Config struct {
-	Addr      string
+	Addr  string
+	Hosts []*HostConfig
+}
+
+type HostConfig struct {
+	Hostname  string
 	Locations []*LocationConfig
 }
 
 func NewServerFromConfig(conf *Config) *Server {
-	var locations []*Location
-	for _, location := range conf.Locations {
-		locations = append(locations, NewLocation(location.Path, NewUpstream(location.Servers...), location.Matches...))
+	var hosts []*Host
+	for _, host := range conf.Hosts {
+		var locations []*Location
+		for _, location := range host.Locations {
+			locations = append(locations, NewLocation(location.Path, NewUpstream(location.Servers...), location.Matches...))
+		}
+		hosts = append(hosts, &Host{host.Hostname, locations})
 	}
-	server := NewServer(conf.Addr, locations...)
+	server := NewServer(conf.Addr, hosts...)
 	return server
 }
 
