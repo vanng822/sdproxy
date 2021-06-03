@@ -8,23 +8,33 @@ import (
 
 type Server struct {
 	addr  string
-	hosts map[string][]*Location
+	hosts []*Host
 }
 
 func (s *Server) SetAddr(addr string) {
 	s.addr = addr
 }
 
+func (s *Server) getHost(hostname string) *Host {
+	for _, host := range s.hosts {
+		if host.hostname == hostname {
+			return host
+		}
+	}
+	return nil
+}
+
 // AddLocation will add and sort the paths in reverse natural order
 func (s *Server) AddLocation(hosts ...*Host) {
 	for _, host := range hosts {
 		if len(host.locations) == 0 {
-			continue
+			return
 		}
-		if _, exist := s.hosts[host.hostname]; !exist {
-			s.hosts[host.hostname] = make([]*Location, 0)
+		if h := s.getHost(host.hostname); h != nil {
+			h.locations = append(h.locations, host.locations...)
+		} else {
+			s.hosts = append(s.hosts, host)
 		}
-		s.hosts[host.hostname] = append(s.hosts[host.hostname], host.locations...)
 	}
 	s.sortLocations()
 }
@@ -43,11 +53,12 @@ func (s *Server) matchHeader(req *http.Request, location *Location) bool {
 }
 
 func (s *Server) getLocation(req *http.Request) *Location {
-	for host, locations := range s.hosts {
-		if host != req.Host {
+	for _, host := range s.hosts {
+		// allow matching without hostname
+		if host.hostname != "" && host.hostname != req.Host {
 			continue
 		}
-		for _, location := range locations {
+		for _, location := range host.locations {
 			if strings.HasPrefix(req.URL.RequestURI(), location.path) {
 				if location.matches == nil {
 					return location
@@ -71,8 +82,8 @@ func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) sortLocations() {
-	for _, locations := range s.hosts {
-		sort.Sort(sort.Reverse(LocationByPath(locations)))
+	for _, host := range s.hosts {
+		sort.Sort(sort.Reverse(LocationByPath(host.locations)))
 	}
 }
 
@@ -83,7 +94,7 @@ func (s *Server) ListenAndServe() error {
 func NewServer(addr string, hosts ...*Host) *Server {
 	server := &Server{
 		addr:  addr,
-		hosts: make(map[string][]*Location),
+		hosts: make([]*Host, 0),
 	}
 	server.AddLocation(hosts...)
 	return server

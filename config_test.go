@@ -32,8 +32,8 @@ func TestNewServerFromConfig(t *testing.T) {
 
 	server := NewServerFromConfig(&conf)
 
-	assert.Equal(t, "/api", server.hosts["testing.com"][0].path)
-	assert.Equal(t, "/", server.hosts["testing.com"][1].path)
+	assert.Equal(t, "/api", server.hosts[0].locations[0].path)
+	assert.Equal(t, "/", server.hosts[0].locations[1].path)
 	assert.Equal(t, "127.0.0.1:8080", server.addr)
 }
 

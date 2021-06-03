@@ -103,10 +103,10 @@ func TestLocationByPath(t *testing.T) {
 
 	server := NewServer("127.0.0.1:8080", &Host{"testing.com", locations})
 	server.sortLocations()
-	sortedWebHeader := server.hosts["testing.com"][0]
-	sortedApiWeb := server.hosts["testing.com"][1]
-	sortedApi := server.hosts["testing.com"][2]
-	sortedWeb := server.hosts["testing.com"][3]
+	sortedWebHeader := server.hosts[0].locations[0]
+	sortedApiWeb := server.hosts[0].locations[1]
+	sortedApi := server.hosts[0].locations[2]
+	sortedWeb := server.hosts[0].locations[3]
 	assert.Equal(t, apiWebHeader, sortedWebHeader)
 	assert.Equal(t, apiWeb, sortedApiWeb)
 	assert.Equal(t, web, sortedWeb)
