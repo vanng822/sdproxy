@@ -16,6 +16,9 @@ func (up *Upstream) AddServer(servers ...*httputil.ReverseProxy) {
 	if len(servers) == 0 {
 		return
 	}
+	up.currentLock.Lock()
+	defer up.currentLock.Unlock()
+
 	up.servers = append(up.servers, servers...)
 }
 
