@@ -14,10 +14,13 @@ import (
 )
 
 func main() {
-	web := sdproxy.NewLocation("/", sdproxy.NewUpstream("127.0.0.1:8090", "127.0.0.1:8091"))
+	var hosts []*Host
+    web := sdproxy.NewLocation("/", sdproxy.NewUpstream("127.0.0.1:8090", "127.0.0.1:8091"))
+    hosts = append(hosts, &Host{"", web})
 	api := sdproxy.NewLocation("/api", sdproxy.NewUpstream("127.0.0.1:8092", "127.0.0.1:8093"))
+    hosts = append(hosts, &Host{"", api})
 
-	server := sdproxy.NewServer("127.0.0.1:8181", api, web)
+	server := sdproxy.NewServer("127.0.0.1:8181", hosts...)
 	log.Fatal(server.ListenAndServe())
 }
 ```
@@ -34,18 +37,22 @@ Configuration example
 ```json
 {
     "addr": "127.0.0.1:8080",
-    "locations": [{
+    "hosts": [{
+        "hostname": "",
+        "locations": [{
         "path": "/",
         "servers": [
             "127.0.0.1:8090",
             "127.0.0.1:8094"
         ]
-    }, {
-        "path": "/api",
-        "servers": [
-            "127.0.0.1:8091",
-            "127.0.0.1:8092"
-        ]
+        }, {
+            "path": "/api",
+            "servers": [
+                "127.0.0.1:8091",
+                "127.0.0.1:8092"
+            ]
+        }]
     }]
+    
 }
 ```
