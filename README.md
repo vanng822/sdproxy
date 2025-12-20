@@ -15,10 +15,15 @@ import (
 
 func main() {
 	var hosts []*Host
+
+    var locations []*Location
+
     web := sdproxy.NewLocation("/", sdproxy.NewUpstream("127.0.0.1:8090", "127.0.0.1:8091"))
-    hosts = append(hosts, &Host{"", web})
+    locations = append(locations, web)
 	api := sdproxy.NewLocation("/api", sdproxy.NewUpstream("127.0.0.1:8092", "127.0.0.1:8093"))
-    hosts = append(hosts, &Host{"", api})
+    locations = append(locations, api)
+
+    hosts = append(hosts, &Host{"", locations})
 
 	server := sdproxy.NewServer("127.0.0.1:8181", hosts...)
 	log.Fatal(server.ListenAndServe())
